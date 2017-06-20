@@ -9,6 +9,8 @@ from libs import *
 from FPGA import fpga
 from OSC import osc
 
+pulse_high = 3.3
+vdiv_num = 8
 
 def test(*args, **kwarg):
     pass
@@ -54,7 +56,7 @@ def test_hist_ppulse(width=5., gap=100., **kwargs):
             print paras
             break
         time.sleep(1.0)
-    hist_data = osc.get_hist_data()
+    hist_data = osc.get_histogram_data()
     write_to_csv(DATAPATH + get_time_str() + 'hist_width_%f.csv' % width, hist_data)
 
 
@@ -70,12 +72,12 @@ def test_long_time_measure(time_len=86400, width=5., gap=100., type_='width', ch
     """
     results = [[] for ii in range(ch)]
     # todo: osc
-    osc.set_hoffset()
-    osc.set_hscale()
-    osc.set_voffset()
-    osc.set_vscale()
-    osc.set_measure()
-    osc.set_trigger()
+    osc.set_hoffset(-width / 3e9)
+    osc.set_hscale(width / 15e9)
+    osc.set_voffset(-pulse_high/2.)
+    osc.set_vscale(pulse_high/vdiv_num)
+    osc.set_measure(index=1, type_='width', source='C%d'%ch)
+    osc.set_trigger(chn=3, threshold=1.5)
 
     pulse = []
     fpga.stop()
@@ -90,7 +92,7 @@ def test_long_time_measure(time_len=86400, width=5., gap=100., type_='width', ch
     while time.clock() - start_time < time_len:
         time.sleep(10.)
         for ii in range(ch):
-            results[ii].append(osc.get_measure())
+            results[ii].append(osc.get_measure_in_details('P1')['Current'])
 
         try:
             # save this and delete last
@@ -163,7 +165,6 @@ def test_long_time_delay_change(start=0., step=.05, point=24, ch=0, **kwargs):
 
 
 def test_hist_sequence(time_len=1000., width=1e6, seq_loop=1e6, **kwargs):
-
     pulse = []
     fpga.stop()
     for i in xrange(int(2e6)):
@@ -177,6 +178,7 @@ def test_hist_sequence(time_len=1000., width=1e6, seq_loop=1e6, **kwargs):
 
     while time.clock() - start_time < time_len:
         time.sleep(10.)
+
 
 if __name__ == '__main__':
     pass
