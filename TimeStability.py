@@ -6,11 +6,11 @@
 # Description: 
 # **************************************************/
 from libs import *
-from FPGA import fpga
-from OSC import osc
+from UseDevs import fpga, tdc, osc
 
 pulse_high = 3.3
 vdiv_num = 8
+
 
 def test(*args, **kwarg):
     pass
@@ -33,7 +33,7 @@ def test_hist_ppulse(width=5., gap=100., **kwargs):
     pulse.append(['111111111', 0, 0, width])
     pulse.append(['000000000', 0, 0, gap])
     fpga.PBC_type_program(pulse)
-    fpga.start()
+    fpga.start(0)
     time.sleep(10.0)
     while True:
         sdata = osc.get_measure('P1')
@@ -74,9 +74,9 @@ def test_long_time_measure(time_len=86400, width=5., gap=100., type_='width', ch
     # todo: osc
     osc.set_hoffset(-width / 3e9)
     osc.set_hscale(width / 15e9)
-    osc.set_voffset(-pulse_high/2.)
-    osc.set_vscale(pulse_high/vdiv_num)
-    osc.set_measure(index=1, type_='width', source='C%d'%ch)
+    osc.set_voffset(-pulse_high / 2.)
+    osc.set_vscale(pulse_high / vdiv_num)
+    osc.set_measure(index=1, type_='width', source='C%d' % ch)
     osc.set_trigger(chn=3, threshold=1.5)
 
     pulse = []
@@ -86,7 +86,7 @@ def test_long_time_measure(time_len=86400, width=5., gap=100., type_='width', ch
     pulse.append(['000000000', 0, 0, gap])
     fpga.PBC_type_program(pulse)
     start_time = time.clock()
-    fpga.start()
+    fpga.start(0)
 
     time_str = ''
     while time.clock() - start_time < time_len:
@@ -116,35 +116,69 @@ def test_long_time_stability(time_len=86400, delay=5., ch=4, **kwargs):
     :param kwargs:
     :return:
     """
-    results = [[] for ii in range(ch)]
+    # results = [[] for ii in range(ch)]
 
     pulse = []
     fpga.stop()
 
-    pulse.append(['110000000', 0, 0, delay])
+    pulse.append(['111110000', 0, 0, delay])
     pulse.append(['111111111', 0, 0, 100.])
-    pulse.append(['000000000', 0, 0, 100.])
+    pulse.append(['000000000', 0, 0, 10000000.])
     fpga.PBC_type_program(pulse)
     start_time = time.clock()
-    fpga.start()
-    tdc.start()
-
+    fpga.start(0)
+    # tdc.start()
+    dirr = DATAPATH + 'test_long_time_stability_' + get_time_str() + '/'
+    os.mkdir(dirr)
     time_str = ''
+    index = 0
     while time.clock() - start_time < time_len:
         time.sleep(10.)
-        for ii in range(ch):
-            results[ii].append(tdc.get_delay())
+        # for ii in range(ch):
+        #     results[ii].append(tdc.get_delay())
+        tdc.start_and_save(10, dirr + '%d.dat' % index)
+        index += 1
 
-        try:
-            # save this and delete last
-            t = DATAPATH + get_time_str() + 'timelen_%f_delay_%f' % (time_len, delay,)
-            write_to_csv(t, results)
+        # try:
+        #     # save this and delete last
+        #     t = DATAPATH + get_time_str() + 'timelen_%f_delay_%f.dat' % (time_len, delay,)
+        #     write_to_csv(t, results)
+        #
+        #     if os.path.exists(time_str):
+        #         os.remove(time_str)
+        #     time_str = t
+        # except:
+        #     traceback.print_exc()
 
-            if os.path.exists(time_str):
-                os.remove(time_str)
-            time_str = t
-        except:
-            traceback.print_exc()
+
+def test_std_change_with_delay(delayn_in_10=None, delay_index=9, test_times=5000):
+    if delayn_in_10 is None:
+        # delay = [1., 2., 3., 5.]
+        delay = [1.]
+    delays = [0.]
+    for i in range(delay_index):
+        # for i in [8]:
+        for j in range(len(delay)):
+            delays.append(delay[j] * 10 ** i)
+    # delays = [20, 30, 200, 300, 2000, 3000, 20000, 30000, 200000, 300000, 2000000, 3000000, 20000000, 30000000]
+    dirr = DATAPATH + get_time_str() + '/'
+    os.mkdir(dirr)
+
+    for delay in delays:
+        print 'delay=', delay
+        fpga.stop()
+        pulse = []
+        # pulse.append(['111111010', 0, 0, 10.00])
+        # pulse.append(['000000000', 0, 0, delay-10])
+        pulse.append(['111110000', 0, 0, delay])
+        # pulse.append(['100001111', 0, 0, delay])
+        pulse.append(['111111111', 0, 0, 10.000])
+        # pulse.append(['100000101', 0, 0, 10.00])
+        # pulse.append(['000000000', 0, 0, 1000000.0])
+        pulse.append(['000000000', 0, 0, 1000000.0])
+        fpga.PBC_type_program(pulse)
+        fpga.start(0)
+        tdc.start_and_save(test_times, fname=dirr + '%d.txt' % delay)
 
 
 def test_long_time_delay_change(start=0., step=.05, point=24, ch=0, **kwargs):
@@ -159,7 +193,7 @@ def test_long_time_delay_change(start=0., step=.05, point=24, ch=0, **kwargs):
         pulse.append(['000000000', 0, 0, 100.])
         fpga.PBC_type_program(pulse)
         start_time = time.clock()
-        fpga.start()
+        fpga.start(0)
         result = tdc.start(10000)
         write_to_csv(DATAPATH + get_time_str() + 'ch_%d_delay_change_%f' % (ch, start + step * i,), results)
 
@@ -167,18 +201,23 @@ def test_long_time_delay_change(start=0., step=.05, point=24, ch=0, **kwargs):
 def test_hist_sequence(time_len=1000., width=1e6, seq_loop=1e6, **kwargs):
     pulse = []
     fpga.stop()
-    for i in xrange(int(2e6)):
+    for i in xrange(int(seq_loop * 2)):
         pulse.append(['111111111', 0, 0, width])
         pulse.append(['000000000', 0, 0, width])
 
     fpga.PBC_type_program(pulse)
     start_time = time.clock()
-    fpga.start()
-    tdc.start()
+    fpga.start(0)
 
-    while time.clock() - start_time < time_len:
-        time.sleep(10.)
+    tdc.start_and_save(int(seq_loop),
+                       DATAPATH + get_time_str() + 'test_hist_sequence_width_%e_loop_%d.csv' % (width, seq_loop))
+    # while time.clock() - start_time < time_len:
+    #     time.sleep(10.)
+    #     tdc.start()
 
 
 if __name__ == '__main__':
-    pass
+    test_hist_sequence()
+    # test_std_change_with_delay()
+    # for delay in [10., 1000, 1000000, 1000000000]:
+    #     test_long_time_stability(delay=delay)
