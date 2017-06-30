@@ -82,7 +82,7 @@ def pulse_step_tdc_test(start=10., step=.05, point=24, gap=1000000., test_times=
         pulse.append(['000000000', 0, 0, gap])
         fpga.PBC_type_program(pulse)
         fpga.start(0)
-        tdc.start_and_save(test_times, fname=dirr + '_ch_1_%s.dat' % channel)
+        tdc.start_and_save(test_times, fname=dirr + 'step_%d_ch_1_%s.dat' % (i, channel))
 
     for i in range(point):
         pulse = []
@@ -92,16 +92,16 @@ def pulse_step_tdc_test(start=10., step=.05, point=24, gap=1000000., test_times=
         pulse.append(['000000000', 0, 0, gap])
         fpga.PBC_type_program(pulse)
         fpga.start(0)
-        tdc.start_and_save(test_times, fname=dirr + '_ch_2_%s.dat' % channel)
+        tdc.start_and_save(test_times, fname=dirr + 'step_%d_ch_2_%s.dat' % (i, channel))
 
 
 if __name__ == '__main__':
     # for i in ['00010010', '11000000', '00000011']:
     #     pulse_step_tdc_test(channel=i)
-    pulse_step_tdc_test(channel='10001000')
-    raw_input('please channe sma connector')
-    pulse_step_tdc_test(channel='01000100')
+    pulse_step_tdc_test(channel='00010001')
     raw_input('please channe sma connector')
     pulse_step_tdc_test(channel='00100010')
     raw_input('please channe sma connector')
-    pulse_step_tdc_test(channel='00010001')
+    pulse_step_tdc_test(channel='01000100')
+    raw_input('please channe sma connector')
+    pulse_step_tdc_test(channel='10001000')

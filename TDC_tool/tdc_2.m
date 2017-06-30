@@ -6,16 +6,9 @@
 
 
 
-pnum = 5000;
-period = 4000;
-snum=20;
-bnum=28;
-binnum=200;
 
-x1=zeros(binnum,4,snum);
-x2=zeros(binnum,4,snum);
-yy1=zeros(binnum,4);
-yy2=zeros(binnum,4);
+
+
 y=zeros(pnum,snum);
 z=zeros(pnum,snum);
 mean_ave=zeros(snum,2);
@@ -121,9 +114,7 @@ for i=1:pnum
     std_data(i,2)=y(i,10);
 end
 
-hist(std_hist);
-print('-painters', '-dpng', '-r1200', strcat(fn(1:end-3), 'png'))
-csvwrite(strcat(fn, '_measure.csv'), std_hist);
+
 % csvwrite(strcat(fn, '.csv'), [mean_ave(20, :), std_ave(20, 2)]);
 
 

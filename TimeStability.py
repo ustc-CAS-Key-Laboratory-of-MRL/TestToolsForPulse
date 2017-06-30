@@ -198,18 +198,22 @@ def test_long_time_delay_change(start=0., step=.05, point=24, ch=0, **kwargs):
         write_to_csv(DATAPATH + get_time_str() + 'ch_%d_delay_change_%f' % (ch, start + step * i,), results)
 
 
-def test_hist_sequence(time_len=1000., width=1e6, seq_loop=1e6, **kwargs):
-    pulse = []
+def test_hist_sequence(time_len=1000., width=100000, seq_loop=100000, **kwargs):
     fpga.stop()
-    for i in xrange(int(seq_loop * 2)):
-        pulse.append(['111111111', 0, 0, width])
+    pulse = []
+    for i in xrange(seq_loop * 2):
+        # pulse.append(['111111111', 0, 0, width])
+        pulse.append(['111110000', 0, 0, width])
+        pulse.append(['000000000', 0, 0, width])
+        pulse.append(['100001111', 0, 0, width])
         pulse.append(['000000000', 0, 0, width])
 
+    print 'pulse=', len(pulse)
     fpga.PBC_type_program(pulse)
-    start_time = time.clock()
-    fpga.start(0)
+    # start_time = time.clock()
+    fpga.start(1)
 
-    tdc.start_and_save(int(seq_loop),
+    tdc.start_and_save(seq_loop,
                        DATAPATH + get_time_str() + 'test_hist_sequence_width_%e_loop_%d.csv' % (width, seq_loop))
     # while time.clock() - start_time < time_len:
     #     time.sleep(10.)
