@@ -153,8 +153,8 @@ def test_long_time_stability(time_len=86400, delay=5., ch=4, **kwargs):
 
 def test_std_change_with_delay(delayn_in_10=None, delay_index=9, test_times=5000):
     if delayn_in_10 is None:
-        # delay = [1., 2., 3., 5.]
-        delay = [1.]
+        delay = [1., 2., 3., 5.]
+        # delay = [1.]
     delays = [0.]
     for i in range(delay_index):
         # for i in [8]:
@@ -221,7 +221,7 @@ def test_hist_sequence(time_len=1000., width=100000, seq_loop=100000, **kwargs):
 
 
 if __name__ == '__main__':
-    test_hist_sequence()
-    # test_std_change_with_delay()
+    # test_hist_sequence()
+    test_std_change_with_delay()
     # for delay in [10., 1000, 1000000, 1000000000]:
     #     test_long_time_stability(delay=delay)

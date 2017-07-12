@@ -66,8 +66,8 @@ def pulse_step_test(start=5., step=.05, point=24, gap=20.):
     write_to_csv(DATAPATH + get_time_str() + 'start_%f_step_%f_point_%d.csv' % (start, step, point), data)
 
 
-def pulse_step_tdc_test(start=10., step=.05, point=24, gap=1000000., test_times=10000, channel='00000011'):
-    dirr = DATAPATH + 'pulse_step_tdc_test_%s_' % channel + get_time_str() + '/'
+def pulse_step_tdc_test(start=10., step=.05, point=26, gap=1000000., test_times=10000, channel='00000011'):
+    dirr = DATAPATH + get_time_str() + 'pulse_step_tdc_test_%s_' % channel + '/'
     os.mkdir(dirr)
     ch2_on = '1' + channel.replace('1', '0', 1)
     i = len(channel) - 1
@@ -78,7 +78,7 @@ def pulse_step_tdc_test(start=10., step=.05, point=24, gap=1000000., test_times=
         pulse = []
         fpga.stop()
         pulse.append([ch1_on, 0, 0, step * i])
-        pulse.append(['1'+channel, 0, 0, start])
+        pulse.append(['1' + channel, 0, 0, start])
         pulse.append(['000000000', 0, 0, gap])
         fpga.PBC_type_program(pulse)
         fpga.start(0)
@@ -88,7 +88,7 @@ def pulse_step_tdc_test(start=10., step=.05, point=24, gap=1000000., test_times=
         pulse = []
         fpga.stop()
         pulse.append([ch2_on, 0, 0, step * i])
-        pulse.append(['1'+channel, 0, 0, start])
+        pulse.append(['1' + channel, 0, 0, start])
         pulse.append(['000000000', 0, 0, gap])
         fpga.PBC_type_program(pulse)
         fpga.start(0)
@@ -98,10 +98,10 @@ def pulse_step_tdc_test(start=10., step=.05, point=24, gap=1000000., test_times=
 if __name__ == '__main__':
     # for i in ['00010010', '11000000', '00000011']:
     #     pulse_step_tdc_test(channel=i)
+    # pulse_step_tdc_test(channel='10001000')
+    # raw_input('please channe sma connector')
+    # pulse_step_tdc_test(channel='01000100')
+    # raw_input('please channe sma connector')
+    # pulse_step_tdc_test(channel='00100010')
+    # raw_input('please channe sma connector')
     pulse_step_tdc_test(channel='00010001')
-    raw_input('please channe sma connector')
-    pulse_step_tdc_test(channel='00100010')
-    raw_input('please channe sma connector')
-    pulse_step_tdc_test(channel='01000100')
-    raw_input('please channe sma connector')
-    pulse_step_tdc_test(channel='10001000')

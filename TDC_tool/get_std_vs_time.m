@@ -31,6 +31,7 @@ for filename=fnames
     
     std_vs_time(end+1,:)=[time_interval, mean_ave(20, 2), std_ave(20, 2)];
 end
+std_vs_time_1=sortrows(std_vs_time(2:end,:), 1);
+csvwrite(strcat(folder_name, 'std_vs_time.csv'), std_vs_time_1);
 
-csvwrite(strcat(folder_name, 'std_vs_time.csv'), std_vs_time(2:end,:));
-clear std_vs_time;
+% clear std_vs_time;
