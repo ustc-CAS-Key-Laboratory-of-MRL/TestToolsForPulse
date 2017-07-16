@@ -35,9 +35,9 @@ end
 std_vs_time=sortrows(std_vs_time(2:end,:), 1);
 
 if ~ exist('pulse_steps', 'var')
-    pulse_steps = std_vs_time(end/2:-1:1, 1);
+    pulse_steps = std_vs_time(1:end/2, 1);
 else
-    pulse_steps=[pulse_steps std_vs_time(end/2:-1:1, 1)];
+    pulse_steps=[pulse_steps std_vs_time(1:end/2, 1)];
 end
 pulse_steps=[pulse_steps std_vs_time(end/2+1:end, 1)];
 
@@ -46,27 +46,30 @@ abs_steps = diff(pulse_steps);
 mean_steps = mean(abs_steps(1:end,:));
 
 % result=abs_steps./(mean_steps'*ones(1,nr))';
-
+kkk=size(mean_steps');
+kkk=kkk(1,1);
 if ~ exist('DNL', 'var')
     DNL = (abs_steps(:, 1)-mean_steps(1, 1))/mean_steps(1, 1);
 %     DNL = abs_steps/mean_steps;
 %     DNL = abs_steps./(mean_steps'*ones(1,nr))';
 %     INL = cumsum(DNL);
 else
-    DNL = [DNL (abs_steps(:, 1)-mean_steps(1, 1))/mean_steps(1, 1)];
+    DNL = [DNL (abs_steps(:, kkk-1)-mean_steps(1, kkk-1))/mean_steps(1, kkk-1)];
 %     DNL = [DNL abs_steps./(mean_steps'*ones(1,nr))'];
 %     INL = [INL cumsum(DNL)];
 end
 
-for i=size(mean_steps'):size(mean_steps')
+for i=kkk:kkk
     DNL = [DNL (abs_steps(:, i)-mean_steps(1, i))/mean_steps(1, i)];
 end
 INL = cumsum(DNL);
 
 dlmwrite([folder_name 'pulse_steps.csv'], pulse_steps, 'precision', '%0.8f'); 
+dlmwrite([folder_name 'abs_steps.csv'], abs_steps, 'precision', '%0.8f');
 dlmwrite([folder_name 'pulse_DNL.csv'], DNL, 'precision', '%0.8f');
 dlmwrite([folder_name 'pulse_INL.csv'], INL, 'precision', '%0.8f');
 % csvwrite(strcat(folder_name, 'pulse_steps.csv'), pulse_steps);
 % csvwrite(strcat(folder_name, 'pulse_DNL.csv'), DNL);
 % csvwrite(strcat(folder_name, 'pulse_INL.csv'), INL);
 % clear std_vs_time;
+clear kkk;

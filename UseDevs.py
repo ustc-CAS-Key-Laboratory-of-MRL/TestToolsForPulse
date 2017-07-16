@@ -20,6 +20,7 @@ for pp in sys.path:
 osc = OSC.Digitizer()
 global fpga
 fpga = ASG.FPGADev(dev_index=1)
+# fpga.set_clock_source(internal=True)
 tdc = TDC.FPGA(dev_index=0)
 
 

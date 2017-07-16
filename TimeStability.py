@@ -106,7 +106,7 @@ def test_long_time_measure(time_len=86400, width=5., gap=100., type_='width', ch
             traceback.print_exc()
 
 
-def test_long_time_stability(time_len=86400, delay=5., ch=4, **kwargs):
+def test_long_time_stability(time_len=86400, delay=5., ch=4, measure_times=10, **kwargs):
     """
     :param time_len:
     :param width:
@@ -136,7 +136,7 @@ def test_long_time_stability(time_len=86400, delay=5., ch=4, **kwargs):
         time.sleep(10.)
         # for ii in range(ch):
         #     results[ii].append(tdc.get_delay())
-        tdc.start_and_save(10, dirr + '%d.dat' % index)
+        tdc.start_and_save(measure_times, dirr + '%d.dat' % index)
         index += 1
 
         # try:
@@ -161,7 +161,7 @@ def test_std_change_with_delay(delayn_in_10=None, delay_index=9, test_times=5000
         for j in range(len(delay)):
             delays.append(delay[j] * 10 ** i)
     # delays = [20, 30, 200, 300, 2000, 3000, 20000, 30000, 200000, 300000, 2000000, 3000000, 20000000, 30000000]
-    dirr = DATAPATH + get_time_str() + '/'
+    dirr = DATAPATH + get_time_str() + 'std_vs_interval/'
     os.mkdir(dirr)
 
     for delay in delays:
@@ -222,6 +222,7 @@ def test_hist_sequence(time_len=1000., width=100000, seq_loop=100000, **kwargs):
 
 if __name__ == '__main__':
     # test_hist_sequence()
-    test_std_change_with_delay()
+    # test_std_change_with_delay()
     # for delay in [10., 1000, 1000000, 1000000000]:
     #     test_long_time_stability(delay=delay)
+    test_long_time_stability(delay=1000000000., measure_times=1)
